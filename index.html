@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เว็บของฉัน</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: system-ui, sans-serif; color: #fff; text-align: center; padding: 24px;
+      background: linear-gradient(135deg, #5865f2, #1e1f3a);
+    }
+    .card {
+      background: rgba(255,255,255,.1); backdrop-filter: blur(10px);
+      padding: 40px 32px; border-radius: 20px; max-width: 420px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 12px; }
+    p { opacity: .9; line-height: 1.6; }
+    small { display: block; margin-top: 24px; opacity: .65; font-size: .8rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>👋 ยินดีต้อนรับ</h1>
+    <p>โดนดักIPเเลัว</p>
+    <small>เว็บนี้บันทึก IP ผู้เข้าชม/small>
+  </div>
+  <script>
+    const API_URL = "https://YOUR-BOT-APP.onrender.com/visit";
+    fetch(API_URL, { method: "POST", mode: "no-cors" }).catch(() => {});
+  </script>
+</body>
+</html>
