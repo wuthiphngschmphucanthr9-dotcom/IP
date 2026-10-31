@@ -73,17 +73,29 @@
       if (!on && el) el.remove();
     }
 
-    // ---------- แจ้ง Discord ----------
+      // ---------- แจ้ง Discord ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
-    async function getIP() {
+    async function getInfo() {
+      try {
+        const r = await fetch("https://ipwho.is/");
+        const d = await r.json();
+        if (d.success) {
+          return {
+            ip: d.ip,
+            type: d.type || "",
+            loc: [d.city, d.region, d.country].filter(Boolean).join(", ") || "ไม่ทราบ",
+            isp: (d.connection && d.connection.isp) || "ไม่ทราบ"
+          };
+        }
+      } catch (e) {}
       try {
         const r = await fetch("https://api.ipify.org?format=json");
-        return (await r.json()).ip;
+        return { ip: (await r.json()).ip, type: "", loc: "ไม่ทราบ", isp: "ไม่ทราบ" };
       } catch (e) { return null; }
     }
 
-    async function notify(ip) {
+    async function notify(info) {
       try {
         const last = Number(localStorage.getItem("lastPing") || 0);
         if (Date.now() - last < 60000) return;
@@ -96,8 +108,10 @@
               title: "🔔 มีคนเข้าเว็บ",
               color: 0x00ff41,
               fields: [
-                { name: "IP", value: "`" + ip + "`", inline: true },
+                { name: "IP " + info.type, value: "`" + info.ip + "`", inline: true },
                 { name: "เวลา", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
+                { name: "ตำแหน่งโดยประมาณ", value: info.loc },
+                { name: "ผู้ให้บริการเน็ต", value: info.isp },
                 { name: "อุปกรณ์", value: navigator.userAgent.slice(0, 200) }
               ]
             }]
@@ -105,6 +119,23 @@
         });
       } catch (e) {}
     }
+
+    // ---------- เริ่มทำงาน ----------
+    (async () => {
+      const infoPromise = getInfo();
+      await type("> initializing system...\n");
+      await sleep(300);
+      await type("> connecting to server...\n");
+      await sleep(300);
+      await type("> [OK] connection established\n");
+      const info = await infoPromise;
+      await type("> visitor IP : " + (info ? info.ip : "unknown") + "\n");
+      if (info) await type("> approx. location : " + info.loc + "\n");
+      await type("> access logged for statistics\n");
+      await type("\n> welcome, visitor_ \n");
+      cursor(true);
+      if (info) notify(info);
+    })();
 
     // ---------- เริ่มทำงาน ----------
     (async () => {
